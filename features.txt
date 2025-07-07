@@ -1,0 +1,35 @@
+# Fitur Utama macOS Web
+
+1. **Wallpaper Otentik & Desktop Blur**
+   - Latar belakang khas macOS dengan efek blur modern yang memanjakan mata.
+
+2. **Dock Interaktif**
+   - Dock dengan efek pembesaran ikon saat mouse hover, seperti di macOS asli.
+
+3. **Menu Bar Dinamis**
+   - Menu bar dengan logo Apple, nama aplikasi aktif, dan jam real-time.
+
+4. **Control Center Fungsional**
+   - Panel kontrol cepat untuk Wi-Fi, Bluetooth, Jangan Ganggu, dan pengaturan tampilan.
+
+5. **Manajemen Window Modern**
+   - Buka, minimalkan, maksimalkan, dan pindahkan window aplikasi dengan mudah.
+
+6. **Aplikasi Bawaan**
+   - **Finder**: Navigasi utama, pusat aktivitas desktop.
+   - **Browser**: Jelajahi internet langsung dari "macOS" Anda.
+   - **Gemini Chat**: Chatbot AI berbasis Google Gemini (aktif jika API key tersedia).
+   - **VS Code**: Editor kode berbasis Monaco, siap untuk coding.
+   - **Notes**: Catatan sederhana untuk ide dan to-do.
+   - **Kalkulator**: Kalkulator fungsional untuk kebutuhan sehari-hari.
+   - **Kalender**: Lihat tanggal dan rencana harian.
+   - **Pengaturan**: Ubah tampilan, wallpaper, suara, dan lainnya.
+
+7. **Teknologi Modern**
+   - React 19, Vite, TailwindCSS, Monaco Editor, Google Gemini API.
+
+8. **Desain Responsif & Animasi Halus**
+   - Tampilan tetap cantik di berbagai ukuran layar, dengan animasi transisi yang lembut.
+
+9. **Inspirasi macOS, Fleksibilitas Web**
+   - Semua keindahan dan kenyamanan macOS, kini bisa diakses dari browser Anda, kapan saja! 
