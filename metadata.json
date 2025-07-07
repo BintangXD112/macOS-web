@@ -1,0 +1,5 @@
+{
+  "name": "macOS Web",
+  "description": "Pengalaman desktop berbasis web yang sangat mirip dengan macOS, menampilkan wallpaper otentik, Dock dengan efek pembesaran, menu bar dinamis dengan logo Apple, Control Center fungsional, editor VS Code terintegrasi, dan beberapa aplikasi bawaan.",
+  "requestFramePermissions": []
+}
