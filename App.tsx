@@ -5,6 +5,7 @@ import MenuBar from './components/MenuBar';
 import { Dock } from './components/Dock';
 import Window from './components/Window';
 import ControlCenter from './components/ControlCenter';
+import MissionControl from './components/MissionControl';
 
 // Icons
 import FinderIcon from './components/icons/FinderIcon';
@@ -67,6 +68,9 @@ const App: React.FC = () => {
   const [nextZIndex, setNextZIndex] = useState(10);
   const [activeAppId, setActiveAppId] = useState<string | null>(null);
   const [isControlCenterOpen, setIsControlCenterOpen] = useState(false);
+  const [isMissionControlOpen, setIsMissionControlOpen] = useState(false);
+  const [desktops, setDesktops] = useState(2);
+  const [activeDesktop, setActiveDesktop] = useState(0);
 
   const toggleControlCenter = useCallback(() => {
     setIsControlCenterOpen(prev => !prev);
@@ -79,7 +83,7 @@ const App: React.FC = () => {
     setIsControlCenterOpen(false); // Close control center when an app is opened
 
     setWindows(prevWindows => {
-      const existingWindowIndex = prevWindows.findIndex(w => w.appId === appId);
+      const existingWindowIndex = prevWindows.findIndex(w => w.appId === appId && w.desktop === activeDesktop);
       const newZIndex = nextZIndex + 1;
       
       setActiveAppId(appId);
@@ -99,11 +103,12 @@ const App: React.FC = () => {
           zIndex: newZIndex,
           isMinimized: false,
           isMaximized: false,
+          desktop: activeDesktop,
         };
         return [...prevWindows, newWindow];
       }
     });
-  }, [nextZIndex]);
+  }, [nextZIndex, activeDesktop]);
 
   const closeWindow = (id: string) => {
     setWindows(prev => prev.filter(w => w.id !== id));
@@ -151,10 +156,28 @@ const App: React.FC = () => {
   const currentMenu = activeApp?.menu || FINDER_MENU;
   const currentAppName = activeApp?.name || 'Finder';
 
+  // Mission Control handlers
+  const handleOpenMissionControl = () => setIsMissionControlOpen(true);
+  const handleCloseMissionControl = () => setIsMissionControlOpen(false);
+  const handleSwitchDesktop = (idx: number) => {
+    if (idx === desktops) setDesktops(d => d + 1);
+    else setActiveDesktop(idx);
+    setIsMissionControlOpen(false);
+  };
+
+  // Shortcut F3
+  React.useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'F3') handleOpenMissionControl();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
+
   return (
     <div className="w-screen h-screen antialiased">
       <Desktop>
-        {windows.map(win => {
+        {windows.filter(w => w.desktop === activeDesktop).map(win => {
           const AppToRender = APPS.find(app => app.id === win.appId)?.component;
           return AppToRender ? (
             <Window
@@ -178,9 +201,20 @@ const App: React.FC = () => {
       <ControlCenter isOpen={isControlCenterOpen} />
       <Dock 
         apps={APPS} 
-        openWindows={windows.map(w => ({ appId: w.appId, isMinimized: w.isMinimized }))}
+        openWindows={windows.filter(w => w.desktop === activeDesktop).map(w => ({ appId: w.appId, isMinimized: w.isMinimized }))}
         onAppClick={openApp} 
       />
+      {isMissionControlOpen && (
+        <MissionControl
+          windows={windows}
+          desktops={desktops}
+          activeDesktop={activeDesktop}
+          onClose={handleCloseMissionControl}
+          onSwitchDesktop={handleSwitchDesktop}
+        />
+      )}
+      {/* Tombol Mission Control sementara */}
+      <button onClick={handleOpenMissionControl} className="fixed top-3 right-32 z-[1000] px-3 py-1 bg-blue-600 text-white rounded shadow hover:bg-blue-700">Mission Control</button>
     </div>
   );
 };
