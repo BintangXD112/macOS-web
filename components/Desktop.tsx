@@ -22,6 +22,8 @@ const Desktop: React.FC<DesktopProps> = ({ children }) => {
   const [renamingId, setRenamingId] = React.useState<string | null>(null);
   const [renameValue, setRenameValue] = React.useState('');
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
+  const [previewFile, setPreviewFile] = React.useState<typeof dummyFiles[0] | null>(null);
+  const [removingId, setRemovingId] = React.useState<string | null>(null);
 
   const handleContextMenu = (e: React.MouseEvent, fileId?: string) => {
     e.preventDefault();
@@ -73,8 +75,12 @@ const Desktop: React.FC<DesktopProps> = ({ children }) => {
     if (e.key === 'Escape') setRenamingId(null);
   };
   const handleDelete = (fileId: string) => {
-    setDesktopFiles(files => files.filter(f => f.id !== fileId));
+    setRemovingId(fileId);
     setContextMenu(null);
+    setTimeout(() => {
+      setDesktopFiles(files => files.filter(f => f.id !== fileId));
+      setRemovingId(null);
+    }, 200); // match fadeOut duration
   };
   const handleNewFolder = () => {
     const newId = Date.now().toString();
@@ -110,6 +116,12 @@ const Desktop: React.FC<DesktopProps> = ({ children }) => {
     if (e.target === e.currentTarget) setSelectedIds([]);
   };
 
+  // Double click handler
+  const handleIconDoubleClick = (file: typeof dummyFiles[0]) => {
+    setPreviewFile(file);
+  };
+  const handleClosePreview = () => setPreviewFile(null);
+
   return (
     <div
       className="absolute inset-0 w-full h-full bg-cover bg-center select-none"
@@ -122,7 +134,7 @@ const Desktop: React.FC<DesktopProps> = ({ children }) => {
         {desktopFiles.map((file, i) => (
           <div
             key={file.id}
-            className={`flex flex-col items-center group cursor-pointer ${dragOverIndex === i && draggedIndex !== null && draggedIndex !== i ? 'ring-2 ring-blue-400' : ''} ${selectedIds.includes(file.id) ? 'ring-2 ring-blue-500 bg-blue-100/20' : ''}`}
+            className={`flex flex-col items-center group cursor-pointer ${dragOverIndex === i && draggedIndex !== null && draggedIndex !== i ? 'ring-2 ring-blue-400' : ''} ${selectedIds.includes(file.id) ? 'ring-2 ring-blue-500 bg-blue-100/20' : ''} ${removingId === file.id ? 'animate-fade-out-desktop' : 'animate-fade-in-desktop'}`}
             style={{ opacity: draggedIndex === i ? 0.5 : 1, transition: 'opacity 0.2s' }}
             draggable
             onDragStart={() => handleDragStart(i)}
@@ -131,6 +143,7 @@ const Desktop: React.FC<DesktopProps> = ({ children }) => {
             onDragEnd={handleDragEnd}
             onContextMenu={e => handleContextMenu(e, file.id)}
             onClick={e => handleIconClick(e, file.id, i)}
+            onDoubleClick={() => handleIconDoubleClick(file)}
           >
             {file.icon}
             {renamingId === file.id ? (
@@ -169,6 +182,23 @@ const Desktop: React.FC<DesktopProps> = ({ children }) => {
               <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={handleNewFolder}>New Folder</div>
             </>
           )}
+        </div>
+      )}
+      {/* Preview Modal */}
+      {previewFile && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={handleClosePreview}>
+          <div className="bg-white rounded-xl shadow-2xl p-8 min-w-[300px] min-h-[180px] relative animate-fade-in-down" onClick={e => e.stopPropagation()}>
+            <button className="absolute top-2 right-2 text-zinc-400 hover:text-red-500 text-xl" onClick={handleClosePreview}>&times;</button>
+            <div className="flex flex-col items-center gap-4">
+              {previewFile.icon}
+              <div className="text-lg font-bold text-zinc-800">{previewFile.name}</div>
+              <div className="text-sm text-zinc-500">
+                {previewFile.type === 'file' && 'Ini adalah file dokumen.'}
+                {previewFile.type === 'folder' && 'Ini adalah folder.'}
+                {previewFile.type === 'app' && 'Ini adalah aplikasi.'}
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
