@@ -21,6 +21,7 @@ const Desktop: React.FC<DesktopProps> = ({ children }) => {
   const [dragOverIndex, setDragOverIndex] = React.useState<number | null>(null);
   const [renamingId, setRenamingId] = React.useState<string | null>(null);
   const [renameValue, setRenameValue] = React.useState('');
+  const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
 
   const handleContextMenu = (e: React.MouseEvent, fileId?: string) => {
     e.preventDefault();
@@ -88,18 +89,40 @@ const Desktop: React.FC<DesktopProps> = ({ children }) => {
     setContextMenu(null);
   };
 
+  // Multi-select handler
+  const handleIconClick = (e: React.MouseEvent, fileId: string, index: number) => {
+    if (e.shiftKey && selectedIds.length > 0) {
+      // Select range
+      const lastIndex = desktopFiles.findIndex(f => f.id === selectedIds[selectedIds.length - 1]);
+      const [start, end] = [lastIndex, index].sort((a, b) => a - b);
+      const rangeIds = desktopFiles.slice(start, end + 1).map(f => f.id);
+      setSelectedIds(Array.from(new Set([...selectedIds, ...rangeIds])));
+    } else if (e.ctrlKey || e.metaKey) {
+      // Toggle select
+      setSelectedIds(ids => ids.includes(fileId) ? ids.filter(id => id !== fileId) : [...ids, fileId]);
+    } else {
+      // Single select
+      setSelectedIds([fileId]);
+    }
+  };
+  // Deselect all on click empty area
+  const handleDesktopClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) setSelectedIds([]);
+  };
+
   return (
     <div
       className="absolute inset-0 w-full h-full bg-cover bg-center select-none"
       style={{ backgroundImage: "url(https://images.unsplash.com/photo-1623951556363-3a42c4839840?q=80&w=2574&auto=format&fit=crop)" }}
       onContextMenu={e => handleContextMenu(e)}
+      onClick={handleDesktopClick}
     >
       {/* Icon file/folder */}
       <div className="absolute left-6 top-6 flex flex-col gap-6">
         {desktopFiles.map((file, i) => (
           <div
             key={file.id}
-            className={`flex flex-col items-center group cursor-pointer ${dragOverIndex === i && draggedIndex !== null && draggedIndex !== i ? 'ring-2 ring-blue-400' : ''}`}
+            className={`flex flex-col items-center group cursor-pointer ${dragOverIndex === i && draggedIndex !== null && draggedIndex !== i ? 'ring-2 ring-blue-400' : ''} ${selectedIds.includes(file.id) ? 'ring-2 ring-blue-500 bg-blue-100/20' : ''}`}
             style={{ opacity: draggedIndex === i ? 0.5 : 1, transition: 'opacity 0.2s' }}
             draggable
             onDragStart={() => handleDragStart(i)}
@@ -107,6 +130,7 @@ const Desktop: React.FC<DesktopProps> = ({ children }) => {
             onDrop={() => handleDrop(i)}
             onDragEnd={handleDragEnd}
             onContextMenu={e => handleContextMenu(e, file.id)}
+            onClick={e => handleIconClick(e, file.id, i)}
           >
             {file.icon}
             {renamingId === file.id ? (
