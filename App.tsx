@@ -6,6 +6,7 @@ import { Dock } from './components/Dock';
 import Window from './components/Window';
 import ControlCenter from './components/ControlCenter';
 import MissionControl from './components/MissionControl';
+import Spotlight from './components/Spotlight';
 
 // Icons
 import FinderIcon from './components/icons/FinderIcon';
@@ -71,6 +72,7 @@ const App: React.FC = () => {
   const [isMissionControlOpen, setIsMissionControlOpen] = useState(false);
   const [desktops, setDesktops] = useState(2);
   const [activeDesktop, setActiveDesktop] = useState(0);
+  const [isSpotlightOpen, setIsSpotlightOpen] = useState(false);
 
   const toggleControlCenter = useCallback(() => {
     setIsControlCenterOpen(prev => !prev);
@@ -165,10 +167,26 @@ const App: React.FC = () => {
     setIsMissionControlOpen(false);
   };
 
+  // Spotlight handlers
+  const handleOpenSpotlight = () => setIsSpotlightOpen(true);
+  const handleCloseSpotlight = () => setIsSpotlightOpen(false);
+
   // Shortcut F3
   React.useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'F3') handleOpenMissionControl();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
+
+  // Shortcut Cmd+Space/Ctrl+Space
+  React.useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.code === 'Space') {
+        e.preventDefault();
+        setIsSpotlightOpen(true);
+      }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
@@ -213,8 +231,16 @@ const App: React.FC = () => {
           onSwitchDesktop={handleSwitchDesktop}
         />
       )}
+      <Spotlight
+        open={isSpotlightOpen}
+        onClose={handleCloseSpotlight}
+        onOpenApp={openApp}
+        apps={APPS.map(a => ({ id: a.id, name: a.name, icon: a.icon }))}
+      />
       {/* Tombol Mission Control sementara */}
       <button onClick={handleOpenMissionControl} className="fixed top-3 right-32 z-[1000] px-3 py-1 bg-blue-600 text-white rounded shadow hover:bg-blue-700">Mission Control</button>
+      {/* Tombol Spotlight sementara */}
+      <button onClick={handleOpenSpotlight} className="fixed top-3 right-56 z-[1000] px-3 py-1 bg-zinc-700 text-white rounded shadow hover:bg-zinc-800">Spotlight</button>
     </div>
   );
 };
