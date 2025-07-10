@@ -48,6 +48,20 @@
       .animate-bounce-dock {
         animation: bounceDock 0.6s cubic-bezier(.28,.84,.42,1) both;
       }
+      @keyframes fadeInDesktopIcon {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+      }
+      .animate-fade-in-desktop {
+        animation: fadeInDesktopIcon 0.25s cubic-bezier(.4,0,.2,1) both;
+      }
+      @keyframes fadeOutDesktopIcon {
+        from { opacity: 1; transform: scale(1); }
+        to { opacity: 0; transform: scale(0.95); }
+      }
+      .animate-fade-out-desktop {
+        animation: fadeOutDesktopIcon 0.2s cubic-bezier(.4,0,.2,1) both;
+      }
     </style>
   <script type="importmap">
 {
