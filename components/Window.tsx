@@ -16,6 +16,13 @@ const Window: React.FC<WindowProps> = ({ instance, onClose, onFocus, onMinimize,
   const [isDragging, setIsDragging] = useState(false);
   const dragStartPos = useRef({ x: 0, y: 0 });
   const windowRef = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(true);
+
+  // Animasi close
+  useEffect(() => {
+    if (instance.isMinimized) setVisible(false);
+    else setVisible(true);
+  }, [instance.isMinimized]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if ((e.target as HTMLElement).closest('.window-control') || instance.isMaximized) {
@@ -57,7 +64,10 @@ const Window: React.FC<WindowProps> = ({ instance, onClose, onFocus, onMinimize,
   return (
     <div
       ref={windowRef}
-      className="absolute bg-zinc-800/70 backdrop-blur-2xl border border-white/10 rounded-xl shadow-2xl flex flex-col font-sf overflow-hidden"
+      className={`absolute bg-zinc-800/70 backdrop-blur-2xl border border-white/10 rounded-xl flex flex-col font-sf overflow-hidden transition-all duration-200
+        ${visible ? 'animate-fade-in-desktop' : 'animate-fade-out-desktop'}
+        ${isDragging ? 'opacity-80 shadow-2xl' : (instance.zIndex > 10 ? 'shadow-2xl' : 'shadow-xl')}
+        ${instance.isMaximized ? 'ring-2 ring-blue-400' : ''}`}
       style={{
         ...(instance.isMaximized 
           ? { top: 35, right: 7, bottom: 85, left: 7, width: 'auto', height: 'auto', transform: 'none' } 
