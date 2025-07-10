@@ -27,6 +27,9 @@ import Browser from './apps/Browser';
 import Settings from './apps/Settings';
 import Calculator from './apps/Calculator';
 import Calendar from './apps/Calendar';
+import Mail from './apps/Mail';
+import Reminders from './apps/Reminders';
+import Photos from './apps/Photos';
 
 
 const APPS: AppDefinition[] = [
@@ -37,6 +40,9 @@ const APPS: AppDefinition[] = [
   { id: 'notes', name: 'Notes', icon: <NotesIcon />, component: Notes, defaultSize: { width: 450, height: 550 } },
   { id: 'calculator', name: 'Kalkulator', icon: <CalculatorIcon />, component: Calculator, defaultSize: { width: 320, height: 500 } },
   { id: 'calendar', name: 'Kalender', icon: <CalendarIcon />, component: Calendar, defaultSize: { width: 800, height: 600 } },
+  { id: 'mail', name: 'Mail', icon: <span className="w-6 h-6">📧</span>, component: Mail, defaultSize: { width: 700, height: 500 } },
+  { id: 'reminders', name: 'Reminders', icon: <span className="w-6 h-6">📝</span>, component: Reminders, defaultSize: { width: 500, height: 500 } },
+  { id: 'photos', name: 'Photos', icon: <span className="w-6 h-6">🖼️</span>, component: Photos, defaultSize: { width: 700, height: 500 } },
   { id: 'settings', name: 'Pengaturan', icon: <SettingsIcon />, component: Settings, defaultSize: { width: 700, height: 500 } },
 ];
 
