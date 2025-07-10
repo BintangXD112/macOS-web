@@ -19,6 +19,8 @@ const Desktop: React.FC<DesktopProps> = ({ children }) => {
   const [desktopFiles, setDesktopFiles] = React.useState(dummyFiles);
   const [draggedIndex, setDraggedIndex] = React.useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = React.useState<number | null>(null);
+  const [renamingId, setRenamingId] = React.useState<string | null>(null);
+  const [renameValue, setRenameValue] = React.useState('');
 
   const handleContextMenu = (e: React.MouseEvent, fileId?: string) => {
     e.preventDefault();
@@ -46,6 +48,46 @@ const Desktop: React.FC<DesktopProps> = ({ children }) => {
     setDragOverIndex(null);
   };
 
+  // Context menu actions
+  const handleRename = (fileId: string) => {
+    const file = desktopFiles.find(f => f.id === fileId);
+    if (file) {
+      setRenamingId(fileId);
+      setRenameValue(file.name);
+      setContextMenu(null);
+    }
+  };
+  const handleRenameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setRenameValue(e.target.value);
+  };
+  const handleRenameSubmit = () => {
+    setDesktopFiles(files => files.map(f => f.id === renamingId ? { ...f, name: renameValue } : f));
+    setRenamingId(null);
+  };
+  const handleRenameBlur = () => {
+    if (renamingId) handleRenameSubmit();
+  };
+  const handleRenameKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') handleRenameSubmit();
+    if (e.key === 'Escape') setRenamingId(null);
+  };
+  const handleDelete = (fileId: string) => {
+    setDesktopFiles(files => files.filter(f => f.id !== fileId));
+    setContextMenu(null);
+  };
+  const handleNewFolder = () => {
+    const newId = Date.now().toString();
+    setDesktopFiles(files => [
+      ...files,
+      { id: newId, name: 'Folder Baru', type: 'folder', icon: <div className="w-10 h-10 bg-blue-200 text-blue-700 flex items-center justify-center rounded shadow">📁</div> }
+    ]);
+    setTimeout(() => {
+      setRenamingId(newId);
+      setRenameValue('Folder Baru');
+    }, 100);
+    setContextMenu(null);
+  };
+
   return (
     <div
       className="absolute inset-0 w-full h-full bg-cover bg-center select-none"
@@ -67,9 +109,21 @@ const Desktop: React.FC<DesktopProps> = ({ children }) => {
             onContextMenu={e => handleContextMenu(e, file.id)}
           >
             {file.icon}
-            <span className="mt-1 text-xs text-white bg-black/40 px-2 py-0.5 rounded group-hover:bg-white/80 group-hover:text-zinc-800 transition-colors shadow">
-              {file.name}
-            </span>
+            {renamingId === file.id ? (
+              <input
+                className="mt-1 text-xs px-2 py-0.5 rounded bg-white text-zinc-800 shadow outline-none border border-blue-400"
+                value={renameValue}
+                autoFocus
+                onChange={handleRenameChange}
+                onBlur={handleRenameBlur}
+                onKeyDown={handleRenameKeyDown}
+                style={{ width: 90 }}
+              />
+            ) : (
+              <span className="mt-1 text-xs text-white bg-black/40 px-2 py-0.5 rounded group-hover:bg-white/80 group-hover:text-zinc-800 transition-colors shadow">
+                {file.name}
+              </span>
+            )}
           </div>
         ))}
       </div>
@@ -83,15 +137,12 @@ const Desktop: React.FC<DesktopProps> = ({ children }) => {
         >
           {contextMenu.fileId ? (
             <>
-              <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Open</div>
-              <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Rename</div>
-              <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-red-600">Delete</div>
+              <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => handleRename(contextMenu.fileId!)}>Rename</div>
+              <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-red-600" onClick={() => handleDelete(contextMenu.fileId!)}>Delete</div>
             </>
           ) : (
             <>
-              <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer">New Folder</div>
-              <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Paste</div>
-              <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Change Wallpaper</div>
+              <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={handleNewFolder}>New Folder</div>
             </>
           )}
         </div>
